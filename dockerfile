@@ -1,5 +1,5 @@
 # Stage 1: Build the application
-FROM maven:3.8.7-openjdk-17 AS build
+FROM maven:3.8.7-eclipse-temurin-17 AS build
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -8,7 +8,7 @@ WORKDIR /app
 COPY . .
 
 # Build the application using Maven
-RUN ./mvnw package
+RUN mvn package
 
 # Stage 2: Create a minimal image with the application
 FROM openjdk:17-jdk-slim
@@ -23,4 +23,5 @@ COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
 
 # Set the default command to run the jar file
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
+
