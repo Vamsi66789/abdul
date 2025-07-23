@@ -1,0 +1,33 @@
+image: atlassian/default-image:3
+options:
+  docker: true
+  size: 2x
+pipelines:
+  default:
+    - step:
+        name: Build Docker Image
+        services:
+          - docker
+        script:
+          - echo "Building the Docker image..."
+          - docker build -t second-repo-image . --file Dockerfile  # Build and tag the Docker image
+          - docker save second-repo-image | gzip > second-repo-image.tar.gz  # Save the image as a tarball
+
+        artifacts:
+          - second-repo-image.tar.gz  # Save the image tarball as an artifact to be used in the next step
+
+    - step:
+        name: Run Docker Container
+        services:
+          - docker
+        script:
+          - echo "Loading the Docker image..."
+          - gzip -d second-repo-image.tar.gz > second-repo-image.tar  # Decompress the image
+          - docker load < second-repo-image.tar  # Load the saved image into Docker
+          - echo "Running the Docker container..."
+          - docker run -d -p 8080:8080 second-repo-image  # Run the container from the image
+          
+definitions:
+  services:
+    docker:
+      memory: 2048  # Allocate sufficient memory for Docker
